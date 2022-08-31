@@ -20,5 +20,6 @@ export const Preguntas=[
       has_video:false,
       description: '¿Eres autodidacta?',
     },
+    
   ]
   export const sectionBy = keyBy(Preguntas, 'key_id');

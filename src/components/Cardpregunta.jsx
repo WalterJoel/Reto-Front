@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import { Button,Dialog, DialogContentText,DialogContent, DialogTitle, CardActionArea, CardActions } from '@mui/material';
 
 import Rec from './Rec';
+import { useEffect } from 'react';
 
 
 export default function Cardpregunta(props) {
@@ -16,11 +17,10 @@ export default function Cardpregunta(props) {
     };
     const _handleClose = () => {
       setOpenDialog(false);
-    };
-
+    }; 
   //Guardar lo rastreado, es decir un json con los videos listos para mandar a backend
   return (
-    <Card sx={{ maxWidth: 345 }} onClick={_handleOpen}>      
+    <Card  onClick={_handleOpen}>      
         <CardActionArea >
         <CardMedia
             component="img"
@@ -44,7 +44,7 @@ export default function Cardpregunta(props) {
 
             <CardActions>
             <Button size="small" color="primary">
-            Responder
+             Abrir
             </Button>
         </CardActions>
 

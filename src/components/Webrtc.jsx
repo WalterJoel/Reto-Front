@@ -1,29 +1,51 @@
-import { useEffect, useRef} from 'react';
-import React, { FC, useCallback, useMemo, useState } from 'react';
-import { Button,buttonBaseClasses,IconButton   } from '@mui/material';
+import { useEffect, createRef,useRef} from 'react';
+import React, { FC, useCallback, memo,useMemo, useState } from 'react';
+import { Paper,Button,buttonBaseClasses,Grid,IconButton   } from '@mui/material';
 
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import { Preguntas } from './constants';
+
+let bufferVideos={};
 
 const Webrtc = (props) => {
     const [count, setCount] = useState(0);
     let buttonGrabar = useRef('Grabar');
-    let mediaRecorder = useRef(null)
+    let mediaRecorder = useRef(null);
     let recordedBlobs = useRef(null)
     const audio = useRef([])
-    const recordedVideo = document.querySelector('video#recorded');
-    const recordButton = document.querySelector('button#record');
+    const recordedVideo  = document.querySelector('video#recorded');
+    const recordButton   = document.querySelector('button#record');
+    const terminarButton = document.querySelector('button#terminar');
+    const sgteButton = document.querySelector('button#sgte');
+    const atrasButton = document.querySelector('button#atras');
+    const iconoCamara = document.querySelector('#iconoCamara');
+
     const gumVideo = document.querySelector('video#gum');
 
+    //Esta funcion entra cuando presiono el boton play o refresh o stop para todos los casos
     const _handleRecord = () => {
-        gumVideo.style.display = 'block'
-        if (recordButton.textContent === 'Start Recording') {
+        if (recordButton.className === 'fa fa-play') {
             startRecording();
-            setCount(count+1)
-        } else {
+            iconoCamara.style.visibility="visible";
+          } 
+          else if(recordButton.className === 'fa fa-stop-circle'){
             stopRecording();
-            recordButton.textContent = 'Start Recording';
+            iconoCamara.style.visibility="hidden";
+            recordButton.className = 'fa fa-refresh';
+            if(Object.keys(bufferVideos).length === props.numeroPreguntas-1){
+                terminarButton.textContent = "Terminar";
+                atrasButton.textContent =''                
+                sgteButton.textContent='';
+            }
+          }
+          else {
+            startRecording();
+            iconoCamara.style.visibility="hidden";
+            recordButton.className = 'fa fa-stop-circle';
+            //Si mi buffer de videos esta lleno
         }
+        gumVideo.style.display = 'block'
     }
 
     function _handlePlay() {
@@ -52,12 +74,17 @@ const Webrtc = (props) => {
         }
 
         console.log('Created MediaRecorder', mediaRecorder, 'with options');
-        recordButton.textContent = 'Stop Recording';
+        recordButton.className = 'fa fa-stop-circle';
+        //props.cambiarEstado('Grabando');
         mediaRecorder.onstop = (event) => {
             console.log('Recorder stopped: ', event);
             console.log('Recorded Blobs: ', recordedBlobs);
-            buttonGrabar.current='Grabar'
             localStorage.setItem('user', JSON.stringify(recordedBlobs))
+            if(recordedBlobs){
+                bufferVideos[props.keys]=recordedBlobs;
+                //console.log(Object.keys(bufferVideos).length);
+                console.log(bufferVideos);
+            }
         };
         mediaRecorder.ondataavailable = _handleDataAvailable;
         mediaRecorder.start();
@@ -66,21 +93,33 @@ const Webrtc = (props) => {
 
     function stopRecording() {
         mediaRecorder.stop();
-        buttonGrabar.current='Grabar'
     }
+
     async function _handleSuccess(stream) {
         console.log('getUserMedia() got stream:', stream);
         window.stream = stream;
         gumVideo.srcObject = stream;
+        
     }
     async function init() {
+        if(props.keys ===0){
+            atrasButton.textContent ='' 
+        }
+        else if(props.keys === Preguntas.length-1){
+            sgteButton.textContent ='' 
+        }
+        else{
+            sgteButton.textContent ='Siguiente' 
+            atrasButton.textContent ='Atras' 
+        }
+
         try {
             const constraints = {
                 audio: {
                     sound: { exact: audio }
                 },
                 video: {
-                    width: 550, height: 320
+                    width: 550, height: 250
                 }
             };
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -89,34 +128,28 @@ const Webrtc = (props) => {
             console.log(e)
         }
     }
-    useEffect(() => {
-        console.log('renderizo',count)
+    useEffect(()=>{
         init();
-    }, [count])
+    },[init])
 
+   
     return (
         <div className='detail__container' id="container">
-            
-            <video ref={mediaRecorder} id="gum" autoPlay muted playsInline></video>
-            <video ref={recordedVideo} id="recorded" autoPlay playsInline loop></video>
-            <div>
-            <button id="recosssrd" onClick={() =>setCount((count) => count + 1)}>inicializar</button>
-                <button id="record" onClick={_handleRecord}>Start Recording</button>
-                {count === 0 || count === 1  ? (
-                    <IconButton id="record" onClick={_handleRecord} aria-label="delete" size="large">
-                        <PlayCircleIcon />
-                    </IconButton>
-                ) 
-                :count === 2? (
-                    <IconButton id="record" onClick={_handleRecord} aria-label="delete" size="large">
-                        <StopCircleIcon />
-                    </IconButton>
-                )
-                :(
-                    <Button >Atrás</Button>
-                )}
+            { bufferVideos[props.keys] ? (
+                <Paper>Ya Respondiste esta Pregunta</Paper>
+            ) : (
+                <Paper></Paper>                
+            )}
 
-                <button id="play" onClick={_handlePlay}>Play</button>
+            <i id="iconoCamara" class="fa fa-video-camera" style={{visibility:'hidden',color:'red',fontSize:'25px',position:'relative',zIndex:'0'}}></i>
+            <video ref={mediaRecorder} id="gum" autoPlay muted playsInline style={{zIndex:'0',position:'relative'}}>
+            </video>
+            <video ref={recordedVideo} id="recorded" autoPlay playsInline loop >
+            </video>
+            <div>
+            <Button  id="recosssrd"   onClick={() => setCount(prevCount => prevCount + 1)}>Camara</Button>
+            <button style={{fontSize:'25px'}}class="fa fa-play" id="record" onClick={_handleRecord}></button>                
+            <Button   id="play" onClick={_handlePlay}>Ver Grabación</Button>
             </div>
         </div>
     )

@@ -4,7 +4,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
-import { Button,Dialog, CardActionArea, CardActions } from '@mui/material';
+import {Grid, Paper,Button,Dialog, CardActionArea, CardActions } from '@mui/material';
 
 //Imports by Me
 import Rec from './Rec';
@@ -19,10 +19,19 @@ export default function MultiActionAreaCard() {
  
 
   return (
-    <div>
-    {Preguntas.map((key) => (
-        <Cardpregunta key={key.key_id} info={key}/>
-    ))}
-    </div>
+      <Grid container direction="row"
+      justifyContent="center"
+      alignItems="center">     
+        <Grid container item 
+      justifyContent="center"
+      alignItems="center">
+          <h1>Video Cuestionario</h1>
+        </Grid> 
+          {Preguntas.map((key) => (
+            <Grid  key={key.key_id} item xs={2.5}>
+              <Cardpregunta info={key}/>
+            </Grid>  
+          ))} 
+      </Grid>  
   );
 }
