@@ -15,15 +15,15 @@ yarn install
 ```bash 
 yarn dev 
 ```
-## Luego ir al navegador, con esta ruta se descargan los videos de Reddit
+## Luego ir al navegador, en esta ruta ya podemos visualizar las preguntas
 ``` 
 http://localhost:3000
-ojo la cantidad de videos dependera del limite que se declare.
+ojo la cantidad de preguntas se puede expandir a mas, según el archivo constants.js
 ```
 
-##  Con esta ruta se genera el .txt que permite luego concatenar los videos
+##  Al final obtenemos todos los videos en un solo JSON
 ``` 
-JSON {
+JSON {Videos{}}
 
 ```
 
